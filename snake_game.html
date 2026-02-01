@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Naimaldo Snake Game</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+    }
+
+    #gameBox {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      margin: auto;
+      background: #111827;
+      border: 3px solid white;
+      overflow: hidden;
+    }
+
+    .snake {
+      width: 20px;
+      height: 20px;
+      background: green;
+      position: absolute;
+    }
+
+    .food {
+      width: 20px;
+      height: 20px;
+      background: red;
+      position: absolute;
+    }
+
+    #score {
+      font-size: 22px;
+      margin: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+<h1>🐍 Snake Game</h1>
+<div id="score">Score: 0</div>
+<div id="gameBox"></div>
+<button onclick="startGame()">Start Game</button>
+
+<script>
+const gameBox = document.getElementById('gameBox');
+const scoreText = document.getElementById('score');
+
+let snake = [];
+let food = null;
+let direction = 'right';
+let gameInterval = null;
+let score = 0;
+
+const boxSize = 20;
+const boxCount = 20; // 400 / 20
+
+// Initialize Snake
+function initSnake() {
+  snake = [
+    {x: 2, y: 0},
+    {x: 1, y: 0},
+    {x: 0, y: 0}
+  ];
+}
+
+// Draw Snake
+function drawSnake() {
+  gameBox.innerHTML = '';
+  snake.forEach(segment => {
+    const div = document.createElement('div');
+    div.className = 'snake';
+    div.style.left = segment.x * boxSize + 'px';
+    div.style.top = segment.y * boxSize + 'px';
+    gameBox.appendChild(div);
+  });
+
+  // Draw food after snake
+  if(food) gameBox.appendChild(food);
+}
+
+// Create Food
+function createFood() {
+  // remove old food
+  if(food) food.remove();
+
+  const fx = Math.floor(Math.random() * boxCount);
+  const fy = Math.floor(Math.random() * boxCount);
+
+  // ensure food doesn't spawn on snake
+  for(const s of snake) {
+    if(s.x === fx && s.y === fy) return createFood();
+  }
+
+  food = document.createElement('div');
+  food.className = 'food';
+  food.style.left = fx * boxSize + 'px';
+  food.style.top = fy * boxSize + 'px';
+
+  // add coordinates for checking collision
+  food.dataset.x = fx;
+  food.dataset.y = fy;
+  gameBox.appendChild(food);
+}
+
+// Move Snake
+function moveSnake() {
+  const head = {...snake[0]};
+
+  if(direction === 'right') head.x++;
+  if(direction === 'left') head.x--;
+  if(direction === 'up') head.y--;
+  if(direction === 'down') head.y++;
+
+  // Collision with walls
+  if(head.x < 0 || head.x >= boxCount || head.y < 0 || head.y >= boxCount) {
+    endGame();
+    return;
+  }
+
+  // Collision with self
+  for(const s of snake) {
+    if(s.x === head.x && s.y === head.y) {
+      endGame();
+      return;
+    }
+  }
+
+  snake.unshift(head);
+
+  // Eat food
+  if(food && head.x == food.dataset.x && head.y == food.dataset.y) {
+    score++;
+    scoreText.innerHTML = "Score: " + score;
+    createFood();
+  } else {
+    snake.pop();
+  }
+
+  drawSnake();
+}
+
+// Game Loop
+function gameLoop() {
+  moveSnake();
+}
+
+// Start Game
+function startGame() {
+  clearInterval(gameInterval);
+  score = 0;
+  scoreText.innerHTML = "Score: 0";
+  direction = 'right';
+  initSnake();
+  createFood();
+  drawSnake();
+  gameInterval = setInterval(gameLoop, 150);
+}
+
+// End Game
+function endGame() {
+  clearInterval(gameInterval);
+  alert("💥 Game Over! Your Score: " + score);
+}
+
+// Controls
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
+  if(e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
+  if(e.key === 'ArrowLeft' && direction !== 'right') direction = 'left';
+  if(e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
+});
+</script>
+</body>
+</html>
