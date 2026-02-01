@@ -65,7 +65,7 @@ let gameInterval = null;
 let score = 0;
 
 const boxSize = 20;
-const boxCount = 20; // 400 / 20
+const boxCount = 20; // 400/20
 
 // Initialize Snake
 function initSnake() {
@@ -86,20 +86,15 @@ function drawSnake() {
     div.style.top = segment.y * boxSize + 'px';
     gameBox.appendChild(div);
   });
-
-  // Draw food after snake
-  if(food) gameBox.appendChild(food);
 }
 
 // Create Food
 function createFood() {
-  // remove old food
   if(food) food.remove();
-
   const fx = Math.floor(Math.random() * boxCount);
   const fy = Math.floor(Math.random() * boxCount);
 
-  // ensure food doesn't spawn on snake
+  // make sure food doesn't spawn on snake
   for(const s of snake) {
     if(s.x === fx && s.y === fy) return createFood();
   }
@@ -108,11 +103,10 @@ function createFood() {
   food.className = 'food';
   food.style.left = fx * boxSize + 'px';
   food.style.top = fy * boxSize + 'px';
-
-  // add coordinates for checking collision
-  food.dataset.x = fx;
-  food.dataset.y = fy;
   gameBox.appendChild(food);
+
+  food.x = fx;
+  food.y = fy;
 }
 
 // Move Snake
@@ -130,7 +124,7 @@ function moveSnake() {
     return;
   }
 
-  // Collision with self
+  // Collision with itself
   for(const s of snake) {
     if(s.x === head.x && s.y === head.y) {
       endGame();
@@ -141,7 +135,7 @@ function moveSnake() {
   snake.unshift(head);
 
   // Eat food
-  if(food && head.x == food.dataset.x && head.y == food.dataset.y) {
+  if(food && head.x === food.x && head.y === food.y) {
     score++;
     scoreText.innerHTML = "Score: " + score;
     createFood();
@@ -175,7 +169,7 @@ function endGame() {
   alert("💥 Game Over! Your Score: " + score);
 }
 
-// Controls
+// Keyboard controls
 document.addEventListener('keydown', function(e) {
   if(e.key === 'ArrowUp' && direction !== 'down') direction = 'up';
   if(e.key === 'ArrowDown' && direction !== 'up') direction = 'down';
@@ -183,5 +177,6 @@ document.addEventListener('keydown', function(e) {
   if(e.key === 'ArrowRight' && direction !== 'left') direction = 'right';
 });
 </script>
+
 </body>
 </html>
